@@ -1,10 +1,17 @@
 """
-Data Sets: 
+Data Sets:
 https://raw.githubusercontent.com/dsojevic/profanity-list/main/src/en.json
 https://raw.githubusercontent.com/coffee-and-fun/google-profanity-words/main/data/list.txt
 """
-
 import json
+import os
+
+pkg_dir, pkg_file = os.path.split(__file__)
+
+def _get_file(name):
+    # INTERNAL: get data files
+    data_folder = os.path.join(pkg_dir, "data", name)
+    return data_folder
 
 def checkExceptions(word : str, profane : str, exceptions):
     for exception in exceptions:
@@ -14,6 +21,7 @@ def checkExceptions(word : str, profane : str, exceptions):
     return True
 
 def isProfane(text : str, deepSearch = False):
+    # Checks if the sentence is profane
     words = text.split(" ")
     for word in words:
         if isWordProfane(word, deepSearch=deepSearch):
@@ -22,10 +30,11 @@ def isProfane(text : str, deepSearch = False):
     return False
 
 def isWordProfane(word : str, deepSearch = False):
+    # Checks if the word is profane
     if len(word) < 3: return False
 
     if deepSearch:
-        profanity = json.load(open("data/profanity.json"))
+        profanity = json.load(open(_get_file("profanity.json")))
         for i in profanity:
             for j in i["dictionary"]:
                 id = j["id"]
@@ -44,7 +53,7 @@ def isWordProfane(word : str, deepSearch = False):
                     if word == x:
                         return checkExceptions(word, x, exceptions)
     else:
-        with open("data/profanity_short.txt") as f:
+        with open(_get_file("profanity_short.txt")) as f:
             for line in f.readlines():
                 if word == line:
                     return True
@@ -52,6 +61,7 @@ def isWordProfane(word : str, deepSearch = False):
     return False
 
 def censor(text : str):
+    # Censors profane words in a sentence
     words = text.split(" ")
     result = ""
     for word in words:
@@ -60,6 +70,7 @@ def censor(text : str):
     return result
 
 def censorWord(word : str):
+    # Censors a word if profane
     if not isWordProfane(word):
         return word
 
@@ -70,6 +81,7 @@ def censorWord(word : str):
     return result
 
 def getSeverity(text : str):
+    # Gets severity of a sentence
     words = text.split(" ")
     result = 0
     size = 0
@@ -84,10 +96,11 @@ def getSeverity(text : str):
     return result
 
 def getWordSeverity(word : str):
+    # Gets severity of a word
     if not isWordProfane(word, deepSearch=True):
         return 0
 
-    profanity = json.load(open("data/profanity.json"))
+    profanity = json.load(open(_get_file("profanity.json")))
     for i in profanity:
         for j in i["dictionary"]:
             id = j["id"]
@@ -111,10 +124,11 @@ def getWordSeverity(word : str):
     return 0
 
 def getWordCategory(word : str):
+    # Gets word category
     if not isWordProfane(word, deepSearch=True):
         return "Unknown Profanity"
 
-    profanity = json.load(open("data/profanity.json"))
+    profanity = json.load(open(_get_file("profanity.json")))
     for i in profanity:
         for j in i["dictionary"]:
             id = j["id"]
@@ -135,12 +149,13 @@ def getWordCategory(word : str):
                         return i["tags"][0]
 
     return ""
-    
+
 def getWordNotes(word : str):
+    # Gets word notes
     if not isWordProfane(word, deepSearch=True):
         return "Unknown Profanity"
 
-    profanity = json.load(open("data/profanity.json"))
+    profanity = json.load(open(_get_file("profanity.json")))
     for i in profanity:
         for j in i["dictionary"]:
             id = j["id"]
